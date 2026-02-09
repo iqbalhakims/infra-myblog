@@ -1,5 +1,5 @@
 resource aws_s3_bucket " my_blog" {
-    bucket = "iqbal-blog"
+    bucket = "var.bucket_name"
     
 
 }
