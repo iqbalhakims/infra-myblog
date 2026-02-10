@@ -1,6 +1,6 @@
 terraform {
   cloud {
-    organization = "iqbalhakim"
+    organization = "iqbal-hakim"
 
     workspaces {
       name = "infra-myblog"
