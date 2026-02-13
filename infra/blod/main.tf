@@ -31,11 +31,10 @@ policy = jsonencode({
       "Sid": "AllowCloudFront",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "cloudfront.amazonaws.com"
+        "Service": "cloudfront.amazonaws.com"
       },
       "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
+        "s3:GetObject"
       ],
       "Resource": "${aws_s3_bucket.my_blog.arn}/*"
     }
@@ -67,7 +66,7 @@ resource "aws_s3_bucket" "object" {
   for_each = fileset("${path.module/www}","**/*")
   bucket = aws_s3_bucket.my_blog.id
   key    = each.value 
-  source = "${path.module/www}/${each.value}"
+  source = "${path.module}/www/${each.value}"
   etag = filemd5("${path.module/www}/${each.value}")
   content_type = lookup({
     "html" = "text/html",
