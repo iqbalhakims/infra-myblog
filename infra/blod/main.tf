@@ -1,5 +1,5 @@
 resource aws_s3_bucket "iqbalhakim" {
-    bucket = "var.bucket_name"
+    bucket_prefix = var.bucket_prefix
 }
 
 resource "aws_s3_bucket_public_access_block" "block" {
@@ -50,8 +50,7 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
     }
 
     actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
+      "s3:GetObject"
     ]
 
     resources = [
