@@ -111,6 +111,15 @@ img {
   color: var(--text);
 }
 
+.social-link {
+  display: flex;
+  align-items: center;
+}
+
+.social-link svg {
+  transition: color 0.2s;
+}
+
 .theme-toggle {
   background: none;
   border: 1px solid var(--border);
