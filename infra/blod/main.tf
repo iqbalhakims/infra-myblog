@@ -107,3 +107,11 @@ default_cache_behavior {
     cloudfront_default_certificate = true
   }
 }
+
+resource "cloudflare_dns_record" "root" {
+  zone_id = var.cloudflare_zone_id
+  name    = "iqbalhakim.xyz"
+  type    = "CNAME"
+  content = aws_cloudfront_distribution.s3_distribution.domain_name
+  proxied = true
+}
