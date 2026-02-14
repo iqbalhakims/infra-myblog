@@ -114,4 +114,5 @@ resource "cloudflare_dns_record" "root" {
   type    = "CNAME"
   content = aws_cloudfront_distribution.s3_distribution.domain_name
   proxied = true
+  ttl     = 1
 }
