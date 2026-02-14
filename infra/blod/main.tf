@@ -9,7 +9,7 @@ resource "aws_s3_bucket_public_access_block" "block" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-} 
+}
 
 
 resource "aws_cloudfront_origin_access_control" "oac" {
@@ -22,51 +22,33 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 
 resource "aws_s3_bucket_policy" "allow_cloudfront" {
   depends_on = [aws_s3_bucket_public_access_block.block]
-  bucket = aws_s3_bucket.my_blog.id
-  
-policy = jsonencode({
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "AllowCloudFront",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloudfront.amazonaws.com"
-      },
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Resource": "${aws_s3_bucket.my_blog.arn}/*"
-    }
-  ]
-})
+  bucket = aws_s3_bucket.iqbalhakim.id
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AllowCloudFront",
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "cloudfront.amazonaws.com"
+        },
+        "Action": [
+          "s3:GetObject"
+        ],
+        "Resource": "${aws_s3_bucket.iqbalhakim.arn}/*"
+      }
+    ]
+  })
 }
 
-data "aws_iam_policy_document" "allow_access_from_another_account" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["123456789012"]
-    }
+resource "aws_s3_object" "object" {
 
-    actions = [
-      "s3:GetObject"
-    ]
-
-    resources = [
-      aws_s3_bucket.example.arn,
-      "${aws_s3_bucket.example.arn}/*",
-    ]
-  }
-}
-
-resource "aws_s3_bucket" "object" {
-  
-  for_each = fileset("${path.module/www}","**/*")
-  bucket = aws_s3_bucket.my_blog.id
-  key    = each.value 
+  for_each = fileset("${path.module}/www","**/*")
+  bucket = aws_s3_bucket.iqbalhakim.id
+  key    = each.value
   source = "${path.module}/www/${each.value}"
-  etag = filemd5("${path.module/www}/${each.value}")
+  etag = filemd5("${path.module}/www/${each.value}")
   content_type = lookup({
     "html" = "text/html",
     "css"  = "text/css",
