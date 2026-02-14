@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLIs, SLOs, and SLAs: A Practical Guide — SRE Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span>&gt;_</span> sre.blog</a>
+      <nav class="nav">
+        <a href="../index.html">Home</a>
+        <button class="theme-toggle" aria-label="Toggle theme">&#9790;</button>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Menu">&#9776;</button>
+    </div>
+  </header>
+
+  <main class="article-page">
+    <a href="../index.html" class="back-link">&larr; Back to articles</a>
+
+    <div class="article-header">
+      <h1>SLIs, SLOs, and SLAs: A Practical Guide</h1>
+      <div class="article-meta">Jan 12, 2026 &middot; 6 min read</div>
+      <div class="tags" style="margin-top: 0.75rem;">
+        <span class="tag">SLI</span>
+        <span class="tag">SLO</span>
+        <span class="tag">SLA</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Service levels are the foundation of SRE. They give you a shared language for talking about reliability and help you make data-driven decisions about where to invest engineering effort. Here's how to get them right.</p>
+
+      <h2>The Definitions</h2>
+
+      <h3>SLI — Service Level Indicator</h3>
+      <p>A quantitative measure of some aspect of the service. It's a <em>metric</em> that reflects the user experience.</p>
+      <p>Good SLIs are:</p>
+      <ul>
+        <li>Directly tied to user happiness</li>
+        <li>Measurable and precise</li>
+        <li>Expressed as a ratio: <code>good events / total events</code></li>
+      </ul>
+
+      <h3>SLO — Service Level Objective</h3>
+      <p>A target value for an SLI. It's the reliability goal your team commits to.</p>
+      <pre><code># Example SLO
+SLI: Proportion of HTTP requests completing in &lt; 300ms
+SLO: 99.9% over a 30-day rolling window</code></pre>
+
+      <h3>SLA — Service Level Agreement</h3>
+      <p>A contract with consequences. SLAs are business commitments — if you fail to meet them, there are typically financial penalties (credits, refunds).</p>
+
+      <blockquote>
+        Your SLO should always be stricter than your SLA. If your SLA promises 99.9% availability, your SLO should target 99.95% to give you a buffer.
+      </blockquote>
+
+      <h2>Choosing the Right SLIs</h2>
+      <p>Focus on what users actually care about. For most services, these four categories cover it:</p>
+
+      <ul>
+        <li><strong>Availability</strong> — Can users reach the service? <code>successful requests / total requests</code></li>
+        <li><strong>Latency</strong> — How fast is the response? <code>requests &lt; threshold / total requests</code></li>
+        <li><strong>Correctness</strong> — Is the response right? <code>correct responses / total responses</code></li>
+        <li><strong>Freshness</strong> — Is the data up to date? <code>records updated within threshold / total records</code></li>
+      </ul>
+
+      <h2>Error Budgets</h2>
+      <p>The error budget is the flip side of your SLO. If your SLO is 99.9%, your error budget is 0.1% — about 43 minutes of downtime per month.</p>
+      <p>Error budgets are powerful because they:</p>
+      <ul>
+        <li>Give teams permission to take calculated risks (deploys, migrations)</li>
+        <li>Provide an objective trigger for slowing down when reliability suffers</li>
+        <li>Align product and engineering teams on reliability trade-offs</li>
+      </ul>
+      <pre><code># Error budget calculation
+SLO: 99.9%
+Error budget: 100% - 99.9% = 0.1%
+30-day window: 30 × 24 × 60 = 43,200 minutes
+Budget: 43,200 × 0.001 = 43.2 minutes of downtime</code></pre>
+
+      <h2>Common Mistakes</h2>
+      <ul>
+        <li><strong>Setting SLOs too high</strong> — 100% is not a realistic target. It prevents you from shipping anything.</li>
+        <li><strong>Too many SLOs</strong> — Start with 1-3 per service. More than that and nobody tracks them.</li>
+        <li><strong>Server-side only metrics</strong> — Measure from the client side when possible. Server metrics miss network issues, DNS problems, and CDN failures.</li>
+        <li><strong>Not iterating</strong> — Your first SLOs will be wrong. Review and adjust quarterly based on what you learn.</li>
+      </ul>
+
+      <h2>Getting Started</h2>
+      <ol>
+        <li>Identify your most critical user journeys</li>
+        <li>Pick 1-2 SLIs per journey (availability + latency is a good start)</li>
+        <li>Set an initial SLO based on historical data</li>
+        <li>Build a dashboard showing your error budget burn rate</li>
+        <li>Alert when the burn rate exceeds safe thresholds</li>
+        <li>Review and adjust after one quarter</li>
+      </ol>
+
+      <h2>Conclusion</h2>
+      <p>SLIs, SLOs, and error budgets are the language of reliability. They replace gut feelings with data and give your team a clear framework for making trade-offs between velocity and stability. Start simple, iterate often, and let the data guide your decisions.</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 sre.blog &mdash; Built with simplicity in mind.</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

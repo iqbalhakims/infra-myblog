@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Management: Lessons from the Trenches — SRE Blog</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span>&gt;_</span> sre.blog</a>
+      <nav class="nav">
+        <a href="../index.html">Home</a>
+        <button class="theme-toggle" aria-label="Toggle theme">&#9790;</button>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Menu">&#9776;</button>
+    </div>
+  </header>
+
+  <main class="article-page">
+    <a href="../index.html" class="back-link">&larr; Back to articles</a>
+
+    <div class="article-header">
+      <h1>Incident Management: Lessons from the Trenches</h1>
+      <div class="article-meta">Feb 10, 2026 &middot; 8 min read</div>
+      <div class="tags" style="margin-top: 0.75rem;">
+        <span class="tag">Incident Response</span>
+        <span class="tag">On-Call</span>
+        <span class="tag">Post-Mortem</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+      <p>Every SRE will tell you that incidents are inevitable. What separates great teams from the rest is how they respond. After years of being on-call and managing incidents at scale, here are the key lessons I've learned.</p>
+
+      <h2>1. Have a Clear Incident Response Process</h2>
+      <p>When an alert fires at 3 AM, you don't want to be figuring out what to do. Your incident response process should be well-documented and practiced regularly.</p>
+      <p>A solid process typically includes:</p>
+      <ul>
+        <li><strong>Detection</strong> — Automated alerts that catch issues before users do</li>
+        <li><strong>Triage</strong> — Quickly assess severity and impact</li>
+        <li><strong>Communication</strong> — Notify stakeholders and set up a war room</li>
+        <li><strong>Mitigation</strong> — Stop the bleeding first, root cause later</li>
+        <li><strong>Resolution</strong> — Fix the underlying issue</li>
+        <li><strong>Post-mortem</strong> — Learn and prevent recurrence</li>
+      </ul>
+
+      <h2>2. Mitigation Over Root Cause</h2>
+      <p>During an active incident, your goal is to restore service. This is not the time to debug the root cause. Roll back the deploy, scale up the fleet, failover to the secondary region — whatever gets users back online fastest.</p>
+
+      <blockquote>
+        The best incident commanders focus on <em>reducing blast radius</em> first. Root cause analysis is for the post-mortem.
+      </blockquote>
+
+      <h2>3. Communication is Everything</h2>
+      <p>Keep stakeholders informed with regular updates. A simple template works well:</p>
+      <pre><code>Status: [Investigating | Identified | Monitoring | Resolved]
+Impact: [Description of user impact]
+Current action: [What we're doing right now]
+ETA: [Best estimate or "Unknown"]</code></pre>
+
+      <h2>4. Blameless Post-Mortems</h2>
+      <p>The post-mortem is the most valuable part of incident management. It's where learning happens. The key principles:</p>
+      <ul>
+        <li>Focus on systems and processes, not individuals</li>
+        <li>Ask "what" and "how", not "who"</li>
+        <li>Document the timeline thoroughly</li>
+        <li>Identify actionable follow-ups with owners and deadlines</li>
+        <li>Share broadly so the whole organization learns</li>
+      </ul>
+
+      <h2>5. On-Call Sustainability</h2>
+      <p>Burnout is the enemy of reliability. A sustainable on-call rotation is critical:</p>
+      <ul>
+        <li>Minimum 8-person rotation (ideally more)</li>
+        <li>Compensate on-call engineers fairly</li>
+        <li>Track interrupt-driven work and page frequency</li>
+        <li>Set a target of fewer than 2 pages per on-call shift</li>
+        <li>Regularly review and tune alert thresholds</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      <p>Good incident management isn't about preventing all failures — it's about responding effectively when they happen and continuously improving your systems and processes. Invest in your incident response muscle, and your reliability will follow.</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 sre.blog &mdash; Built with simplicity in mind.</p>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
