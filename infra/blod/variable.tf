@@ -19,4 +19,5 @@ variable "cloudflare_api_token" {
 variable "cloudflare_zone_id" {
   description = "Cloudflare Zone ID for iqbalhakim.xyz"
   type        = string
+  sensitive   = true
 }
