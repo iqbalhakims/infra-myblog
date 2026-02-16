@@ -64,6 +64,38 @@ resource "aws_s3_object" "object" {
 }
 
 
+resource "aws_acm_certificate" "cert" {
+  provider          = aws.us_east_1
+  domain_name       = "iqbalhakim.xyz"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "cloudflare_dns_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  zone_id = var.cloudflare_zone_id
+  name    = each.value.name
+  type    = each.value.type
+  content = each.value.record
+  proxied = false
+  ttl     = 60
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  provider        = aws.us_east_1
+  certificate_arn = aws_acm_certificate.cert.arn
+}
+
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
     domain_name              = aws_s3_bucket.iqbalhakim.bucket_regional_domain_name
@@ -75,6 +107,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   is_ipv6_enabled     = true
   comment             = "Some comment"
   default_root_object = "index.html"
+  aliases             = ["iqbalhakim.xyz"]
 
 default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -104,7 +137,9 @@ default_cache_behavior {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 }
 
