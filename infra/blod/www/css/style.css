@@ -358,6 +358,26 @@ img {
   font-size: 0.85rem;
 }
 
+.bmc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.45rem 1rem;
+  background: #FFDD00;
+  color: #000000;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.bmc-btn:hover {
+  color: #000000;
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .hero h1 {
