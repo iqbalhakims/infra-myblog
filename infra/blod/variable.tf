@@ -21,9 +21,3 @@ variable "cloudflare_zone_id" {
   type        = string
   sensitive   = true
 }
-
-variable "github_repo" {
-  description = "GitHub repository for static site content (format: owner/repo)"
-  type        = string
-  default     = "iqbalfauzi/iqbalhakim.xyz"
-}

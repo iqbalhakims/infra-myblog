@@ -1,5 +1,5 @@
-resource "aws_s3_bucket" "iqbalhakim" {
-  bucket_prefix = var.bucket_prefix
+resource aws_s3_bucket "iqbalhakim" {
+    bucket_prefix = var.bucket_prefix
 }
 
 resource "aws_s3_bucket_public_access_block" "block" {
@@ -22,25 +22,47 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 
 resource "aws_s3_bucket_policy" "allow_cloudfront" {
   depends_on = [aws_s3_bucket_public_access_block.block]
-  bucket     = aws_s3_bucket.iqbalhakim.id
+  bucket = aws_s3_bucket.iqbalhakim.id
 
   policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
+    "Version": "2012-10-17",
+    "Statement": [
       {
-        "Sid" : "AllowCloudFront",
-        "Effect" : "Allow",
-        "Principal" : {
-          "Service" : "cloudfront.amazonaws.com"
+        "Sid": "AllowCloudFront",
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "cloudfront.amazonaws.com"
         },
-        "Action" : [
+        "Action": [
           "s3:GetObject"
         ],
-        "Resource" : "${aws_s3_bucket.iqbalhakim.arn}/*"
+        "Resource": "${aws_s3_bucket.iqbalhakim.arn}/*"
       }
     ]
   })
 }
+
+resource "aws_s3_object" "object" {
+
+  for_each = fileset("${path.module}/www","**/*")
+  bucket = aws_s3_bucket.iqbalhakim.id
+  key    = each.value
+  source = "${path.module}/www/${each.value}"
+  etag = filemd5("${path.module}/www/${each.value}")
+  content_type = lookup({
+    "html" = "text/html",
+    "css"  = "text/css",
+    "js"   = "application/javascript",
+    "png"  = "image/png",
+    "jpg"  = "image/jpeg",
+    "jpeg" = "image/jpeg",
+    "gif"  = "image/gif",
+    "svg"  = "image/svg+xml",
+    "json" = "application/json",
+    "xml"  = "application/xml"
+  }, split(".", each.value)[length(split(".", each.value)) - 1], "application/octet-stream")
+}
+
 
 resource "aws_acm_certificate" "cert" {
   provider          = aws.us_east_1
@@ -87,7 +109,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   default_root_object = "index.html"
   aliases             = ["iqbalhakim.xyz"]
 
-  default_cache_behavior {
+default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = local.origin_id
