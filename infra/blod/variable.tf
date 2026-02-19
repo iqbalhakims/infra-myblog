@@ -10,14 +10,3 @@ variable "bucket_prefix" {
   default     = "my-static-website-"
 }
 
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token"
-  type        = string
-  sensitive   = true
-}
-
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID for iqbalhakim.xyz"
-  type        = string
-  sensitive   = true
-}

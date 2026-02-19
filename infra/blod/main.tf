@@ -66,7 +66,7 @@ resource "aws_s3_object" "object" {
 
 resource "aws_acm_certificate" "cert" {
   provider          = aws.us_east_1
-  domain_name       = "iqbalhakim.xyz"
+  domain_name       = "iqbalhakim.live"
   validation_method = "DNS"
 
   lifecycle {
@@ -74,7 +74,11 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "cloudflare_dns_record" "cert_validation" {
+resource "aws_route53_zone" "main" {
+  name = "iqbalhakim.live"
+}
+
+resource "aws_route53_record" "cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -83,17 +87,17 @@ resource "cloudflare_dns_record" "cert_validation" {
     }
   }
 
-  zone_id = var.cloudflare_zone_id
+  zone_id = aws_route53_zone.main.zone_id
   name    = each.value.name
   type    = each.value.type
-  content = each.value.record
-  proxied = false
+  records = [each.value.record]
   ttl     = 60
 }
 
 resource "aws_acm_certificate_validation" "cert" {
-  provider        = aws.us_east_1
-  certificate_arn = aws_acm_certificate.cert.arn
+  provider                = aws.us_east_1
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
@@ -107,7 +111,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   is_ipv6_enabled     = true
   comment             = "Some comment"
   default_root_object = "index.html"
-  aliases             = ["iqbalhakim.xyz"]
+  aliases             = ["iqbalhakim.live"]
 
 default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
@@ -143,11 +147,14 @@ default_cache_behavior {
   }
 }
 
-resource "cloudflare_dns_record" "root" {
-  zone_id = var.cloudflare_zone_id
-  name    = "iqbalhakim.xyz"
-  type    = "CNAME"
-  content = aws_cloudfront_distribution.s3_distribution.domain_name
-  proxied = true
-  ttl     = 1
+resource "aws_route53_record" "root" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "iqbalhakim.live"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
 }
