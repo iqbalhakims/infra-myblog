@@ -347,6 +347,55 @@ img {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
+/* ===== Video Thumbnail ===== */
+.video-thumbnail {
+  display: block;
+  position: relative;
+  margin: 1rem 0 1.5rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.video-thumbnail:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.video-thumbnail img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.video-thumbnail .play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.video-thumbnail:hover .play-btn {
+  background: #ff0000;
+}
+
+.video-thumbnail .play-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+  margin-left: 4px;
+}
+
 /* ===== Footer ===== */
 .footer {
   max-width: var(--max-width);

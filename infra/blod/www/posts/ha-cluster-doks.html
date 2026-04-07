@@ -26,7 +26,7 @@
 
     <div class="article-header">
       <h1>Disaster Recovery</h1>
-      <div class="article-meta">Apr 7, 2026 &middot; 15 min read</div>
+      <div class="article-meta">Apr 7, 2026 &middot; 18 min read</div>
       <div class="tags" style="margin-top: 0.75rem;">
         <span class="tag">Kubernetes</span>
         <span class="tag">DigitalOcean</span>
@@ -47,8 +47,16 @@
 
       <p>Why GitOps? GitOps gives us the flexibility to edit directly in VSCode instead of editing in the terminal, which makes life hard when you're debugging at 2AM. Beyond that, your team can trail who made changes and what changes were made — basically better history and better blame. That said, in SRE culture we have a blameless culture, where a post-mortem is made after an incident rather than pointing fingers.</p>
 
-      <p>I made a video on how I deploy Grafana here:<br>
-      <a href="https://www.youtube.com/watch?v=GxGR7MmU3mw&t=185s" target="_blank" rel="noopener">https://www.youtube.com/watch?v=GxGR7MmU3mw&t=185s</a></p>
+      <p>I made a video on how I deploy Grafana here:</p>
+      <a href="https://www.youtube.com/watch?v=GxGR7MmU3mw&t=185s" target="_blank" rel="noopener" class="video-thumbnail">
+        <img src="https://img.youtube.com/vi/GxGR7MmU3mw/hqdefault.jpg" alt="How I deploy Grafana via GitOps">
+        <span class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></span>
+      </a>
+
+      <h2>Making Grafana Highly Available</h2>
+      <p>To make sure Grafana is highly available, I use a managed database with Postgres — because PVC doesn't support multi-node setups. When I was using PVC and did DR testing, I couldn't even log in to Grafana. So I migrated from PVC to managed DB with Postgres.</p>
+
+      <p>But then another question came up: what happens to the dashboards we built when Grafana comes back up after a DR event? That's where <strong>dashboard as code</strong> comes in. The traditional way is to set up dashboards manually using PromQL, but the better way is to use a ConfigMap so dashboards are defined as code. You can just <code>kubectl apply -f dashboard-dr.yaml</code> or sync it in ArgoCD. At this point, I think I'm already in love with GitOps lol.</p>
 
       <h2>Kustomize for Multi-Environment</h2>
       <p>I chose Kustomize to handle multi-environment since it's very friendly. What I like about Kustomize is that you can disable a YAML with just one line removed from <code>kustomization.yaml</code> — without deleting the file itself. So you can add resources back whenever you need them.</p>
@@ -161,11 +169,51 @@ spec:
       </ul>
       <p>You need to configure this in every app you deploy to ensure proper spreading across nodes.</p>
 
-      <p>Here's a demo of node drain:<br>
-      <a href="https://youtu.be/1hWl0pyX6l4?si=nCMFnPORlJWYwIIm" target="_blank" rel="noopener">https://youtu.be/1hWl0pyX6l4?si=nCMFnPORlJWYwIIm</a></p>
+      <p>Here's a demo of node drain:</p>
+      <a href="https://youtu.be/1hWl0pyX6l4?si=nCMFnPORlJWYwIIm" target="_blank" rel="noopener" class="video-thumbnail">
+        <img src="https://img.youtube.com/vi/1hWl0pyX6l4/hqdefault.jpg" alt="Node drain demo">
+        <span class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></span>
+      </a>
 
       <h2>ArgoCD for Config Drift Prevention</h2>
       <p>I use ArgoCD to make sure all configurations stay aligned with what's set in GitHub. ArgoCD prevents config drifting, which is not good for production — if someone manually patches something in the cluster without updating the repo, ArgoCD catches it and flags the drift.</p>
+
+      <p>There are two ways to deploy an application in ArgoCD: create it via the UI, or — you can probably guess — the GitOps way. Here's a sample ArgoCD Application manifest:</p>
+
+      <pre><code>apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/iqbalhakims/kube-promethues-stack-test
+    targetRevision: main
+    path: grafana/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: alertmanager-kube-prometheus-stack-alertmanager
+      namespace: monitoring
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      name: kube-prometheus-stack-grafana
+      namespace: monitoring
+      jsonPointers:
+        - /data
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true</code></pre>
 
     </div>
   </main>
