@@ -27,7 +27,7 @@
 
     <div class="article-header">
       <h1>Disaster Recovery</h1>
-      <div class="article-meta">Apr 7, 2026 &middot; 18 min read</div>
+      <div class="article-meta">Apr 8, 2026 &middot; 20 min read</div>
       <div class="tags" style="margin-top: 0.75rem;">
         <span class="tag">Kubernetes</span>
         <span class="tag">DigitalOcean</span>
@@ -38,6 +38,42 @@
     </div>
 
     <div class="article-content">
+
+      <blockquote>
+        &#9888;&#65039; This article is still in beta — content is being updated as the setup evolves.
+      </blockquote>
+
+      <p>Repo: <a href="https://github.com/iqbalhakims/Disaster-Recovery-HA-Demo/tree/main" target="_blank" rel="noopener">github.com/iqbalhakims/Disaster-Recovery-HA-Demo</a></p>
+
+      <h2>What Is DR Testing and Why It Matters</h2>
+      <p>The main objective of DR testing is to make sure the infrastructure is resilient to any possibility of error. The scenarios might be nodes going down, DB connection lost, or pods going down unintentionally. For this part I kill nodes intentionally to make sure the webapp stays up even when going through a disaster. Besides that, we need to make sure users aren't affected by any error from the developer side.</p>
+
+      <blockquote>
+        Make sure your team knows you're doing this and keep aligned with the SLO of the company.
+      </blockquote>
+
+      <p>I'm keeping the nodes in the same AZ for now because I need to build my production setup first and it's cheaper for testing. Previously when I did DR testing across zones, it took around 40 minutes for pods to move from Zone A to Zone B. When I test in the same zone, it takes less than 10 seconds — probably because it's the same zone and I'm just using a simple Go app. My take is to use Datadog so you can see pods moving from Zone A to B dynamically compared to Grafana, but this one isn't so critical haha.</p>
+
+      <h2>How the Workload Should Be Distributed</h2>
+      <p>The ideal setup is pods spread across 3 nodes with one node in a different AZ. Zone A is usually the primary zone supporting all workload. The first time I did DR testing by shutting down the subnet in one AZ, the pods weren't spreading to other nodes — production was down. I turned the subnet back on, and after a post-mortem, we realized there was no topology constraint set up to make sure pods move to another node.</p>
+
+      <p>Bro, that was my P0 hahahaha.</p>
+
+      <h2>DR Testing Demo</h2>
+      <a href="https://youtu.be/1hWl0pyX6l4?si=nCMFnPORlJWYwIIm" target="_blank" rel="noopener" class="video-thumbnail">
+        <img src="https://img.youtube.com/vi/1hWl0pyX6l4/hqdefault.jpg" alt="DR Testing demo">
+        <span class="play-btn"><svg viewBox="0 0 24 24" width="24" height="24"><polygon points="5,3 19,12 5,21"/></svg></span>
+      </a>
+
+      <h2>Canary Deployment with Argo Rollouts</h2>
+      <p>One of the deployment strategies to keep deployments stable is canary deployment, which applies rollout gradually to the cluster. What canary can do is apply 20% of the new deployment and test the feature. Argo Rollouts supports canary deployment by giving us a dashboard to manually continue the deployment after the 20% phase. We can set up alerting in case any error is detected — if something goes wrong, we can rollback to the previous version so all users aren't affected by the bug.</p>
+
+      <h2>Stress Testing with k6 for 3500 VU</h2>
+      <p>I also ran stress testing with 3500 virtual users just to see pods scaling up with k6. It's a good way to validate that the HPA (Horizontal Pod Autoscaler) is working correctly under real load before trusting it in production.</p>
+
+      <hr style="border-color: var(--border); margin: 2.5rem 0;">
+
+      <h2>Details on How I Set Up My Infra</h2>
 
       <p>I use DigitalOcean for this setup due to price transparency and it being cheaper for managed Kubernetes. The first thing I did was deploy just one node to make sure everything went well before scaling up.</p>
 
@@ -60,7 +96,7 @@
       <p>But then another question came up: what happens to the dashboards we built when Grafana comes back up after a DR event? That's where <strong>dashboard as code</strong> comes in. The traditional way is to set up dashboards manually using PromQL, but the better way is to use a ConfigMap so dashboards are defined as code. You can just <code>kubectl apply -f dashboard-dr.yaml</code> or sync it in ArgoCD. At this point, I think I'm already in love with GitOps lol.</p>
 
       <h2>Kustomize for Multi-Environment</h2>
-      <p>I chose Kustomize to handle multi-environment since it's very friendly. What I like about Kustomize is that you can disable a YAML with just one line removed from <code>kustomization.yaml</code> — without deleting the file itself. So you can add resources back whenever you need them.</p>
+      <p>I chose Kustomize to handle multi-environment since it's very friendly. What I like about Kustomize is that you can disable a YAML by removing a single line from <code>kustomization.yaml</code> — without deleting the file itself. So you can add resources back whenever you need them.</p>
 
       <h2>Domain Management: cert-manager and external-dns</h2>
       <p>The next step was adding domain management. I use <strong>cert-manager</strong> and <strong>external-dns</strong>.</p>
