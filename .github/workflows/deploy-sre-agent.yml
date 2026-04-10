@@ -1,0 +1,36 @@
+name: Deploy SRE Agent to Droplet
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'sre-agent-oncall/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /opt/sre-agent
+
+            git pull origin main
+
+            .venv/bin/pip install --quiet -e .
+
+            .venv/bin/python -m sre_agent.rag.ingest
+
+            systemctl restart sre-agent
+
+            sleep 2
+            curl -sf http://localhost:8080/healthz
