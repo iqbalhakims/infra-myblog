@@ -129,6 +129,26 @@ journalctl -u sre-agent -f
 
 - [Connecting to DOKS cluster (same subnet)](docs/connect-doks.md)
 
+### Connect to DOKS (same subnet)
+
+Run the setup script from your local machine (requires `doctl`, `kubectl`, `ssh`, `scp`):
+
+```bash
+./scripts/connect-doks.sh
+```
+
+What the script does end-to-end:
+
+1. Lists your clusters via `doctl` and prompts for the cluster name
+2. Fetches the kubeconfig from DOKS
+3. Rewrites the API server address to the private VPC IP
+4. Applies `rbac.yaml` to create the scoped `sre-agent` ServiceAccount
+5. Generates a 1-year SA token
+6. Builds a clean kubeconfig using only the SA token (no admin creds)
+7. SCPs it to the Droplet at `/opt/sre-agent/.kube/config`
+8. Updates `KUBECONFIG=` in the Droplet's `.env`
+9. Runs `kubectl get nodes` from the Droplet to verify
+
 ## Adding Runbooks
 
 Drop any `.md` file into `runbooks/` and re-run the ingest script. The agent uses hybrid BM25 + semantic search to match alerts against runbooks at diagnosis time.
