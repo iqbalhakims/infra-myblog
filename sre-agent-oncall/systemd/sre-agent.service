@@ -1,0 +1,17 @@
+[Unit]
+Description=SRE Agent Oncall
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=sre-agent
+WorkingDirectory=/opt/sre-agent
+EnvironmentFile=/opt/sre-agent/.env
+ExecStart=/opt/sre-agent/.venv/bin/python -m sre_agent.main
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
