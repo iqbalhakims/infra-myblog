@@ -1,5 +1,20 @@
 # Connecting SRE Agent to DOKS (Same Subnet)
 
+## Automated (recommended)
+
+Run the setup script from your **local machine** (requires `doctl`, `kubectl`, `ssh`, `scp`):
+
+```bash
+chmod +x scripts/connect-doks.sh
+./scripts/connect-doks.sh
+```
+
+The script will prompt for your cluster name and Droplet private IP, then handle all steps below automatically.
+
+---
+
+## Manual Steps
+
 Since the Droplet and the DOKS cluster share the same VPC/subnet, the agent connects directly to the K8s API server over the private network — no VPN or tunneling required.
 
 ## 1. Get the API Server Private IP
