@@ -125,6 +125,10 @@ systemctl enable --now sre-agent
 journalctl -u sre-agent -f
 ```
 
+## Guides
+
+- [Connecting to DOKS cluster (same subnet)](docs/connect-doks.md)
+
 ## Adding Runbooks
 
 Drop any `.md` file into `runbooks/` and re-run the ingest script. The agent uses hybrid BM25 + semantic search to match alerts against runbooks at diagnosis time.
