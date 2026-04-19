@@ -257,4 +257,12 @@ docker-compose up --build
 * [ ] Only scale when needed
 
 ---
-ZZ
+
+# 🗂️ KIV / Backlog
+
+* [ ] **Image compression on upload** — compress photos to max 1200px wide on upload
+  * Current: ~3 MB/photo (raw phone photo)
+  * After compression: ~300 KB/photo
+  * Impact: 10x more storage capacity (~3,500 cars vs ~350 cars on 25GB droplet)
+  * Droplet: $6/mo, 25GB disk, ~18GB usable for uploads
+  * Each car = 15-20 photos × 3MB = ~51MB uncompressed, ~5MB compressed
