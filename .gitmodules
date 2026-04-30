@@ -1,0 +1,3 @@
+[submodule "salesme/car-sales-crm"]
+	path = salesme/car-sales-crm
+	url = https://github.com/iqbalhakims/recon-car-web.git
