@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Built My Own EKS — SRE Blog</title>
+  <link rel="icon" href="https://avatars.githubusercontent.com/iqbalhakims">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a href="../index.html" class="logo"><span>&gt;_</span> sre.blog</a>
+      <nav class="nav">
+        <a href="../index.html">Home</a>
+        <a href="https://www.linkedin.com/in/iqbal-h-197921105/" target="_blank" rel="noopener" aria-label="LinkedIn" class="social-link"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="https://github.com/iqbalhakims" target="_blank" rel="noopener" aria-label="GitHub" class="social-link"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg></a>
+        <button class="theme-toggle" aria-label="Toggle theme">&#9790;</button>
+      </nav>
+      <button class="mobile-menu-btn" aria-label="Menu">&#9776;</button>
+    </div>
+  </header>
+
+  <main class="article-page">
+    <a href="../index.html" class="back-link">&larr; Back to articles</a>
+
+    <div class="article-header">
+      <h1>I Built My Own EKS</h1>
+      <div class="article-meta">Jun 24, 2026 &middot; 15 min read</div>
+      <div class="tags" style="margin-top: 0.75rem;">
+        <span class="tag">Kubernetes</span>
+        <span class="tag">Raspberry Pi</span>
+        <span class="tag">Homelab</span>
+        <span class="tag">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="article-content">
+
+      <p>When I see people build their own Kubernetes cluster, most of them are using Proxmox. In my case I just want to have a Kubernetes cluster to test things outside of production stuff. After a few days of research, I found two options: k3s and kubeadm. k3s is easier to bootstrap, and kubeadm is more manual — but I think I learn more using kubeadm. That's the whole point of building a homelab.</p>
+
+      <h2>The Hardest Part</h2>
+
+      <p>Choosing what to buy. From PoE, switch, router, old PC, or Raspberry Pi — this was a bit of a struggle. Here's what I ended up buying for this project:</p>
+
+      <ul>
+        <li>TP-Link router</li>
+        <li>TP-Link PoE switch</li>
+        <li>UGreen LAN cable</li>
+        <li>2× Raspberry Pi 5</li>
+        <li>2× PoE Waveshare hat</li>
+        <li>Mini fan</li>
+      </ul>
+
+      <p>I don't do this full time, but it took about 6 months just to figure out what to buy. Lol.</p>
+
+      <h2>Limitations</h2>
+
+      <ul>
+        <li>Slow internet connectivity</li>
+        <li>Not high availability — single control plane and single worker node</li>
+        <li>Power source could be cut anytime since it depends on home electricity</li>
+      </ul>
+
+      <p>But hey, it's not production. The SLA isn't tightened to 99.99999% — and that's fine. It's still good enough to play around with.</p>
+
+      <h2>SSH Setup</h2>
+
+      <p>This really tested me. The Pi Imager has been updated, and the last time I used a Raspberry Pi was 2 years ago for my final year project.</p>
+
+      <p>The old way to enable SSH after flashing the SD card was to create an empty <code>ssh</code> file and a <code>wpa_supplicant.conf</code> with your WiFi config:</p>
+
+      <pre><code>country=MY
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+  ssid="SSID"
+  psk="Password"
+  key_mgmt=WPA-PSK
+}</code></pre>
+
+      <p>When I tried public key authentication, I kept getting <code>Permission denied (publickey)</code>. I ran SSH with <code>-v</code> to get more info:</p>
+
+      <pre><code>ssh username@&lt;publicip&gt; -v</code></pre>
+
+      <p>This part alone took me 1–2 weeks. I read through the Raspberry Pi docs and Googled the error endlessly. Some people said it was a keyboard layout issue — the UK and US layouts are different, so the password characters were coming out wrong.</p>
+
+      <p>Then I searched "how to ssh raspi 5" on YouTube.</p>
+
+      <p>Boom — everything clicked: <a href="https://www.youtube.com/watch?v=FczQRXsgQ4o" target="_blank" rel="noopener">https://www.youtube.com/watch?v=FczQRXsgQ4o</a></p>
+
+      <p>The new Pi Imager lets you set hostname, username, password, and SSH public key directly in the UI before flashing. No need to manually create those files. And since I'm using a LAN cable for reliability, I didn't need to configure WiFi at all.</p>
+
+      <p>After successfully SSH-ing in, the first things I do:</p>
+
+      <pre><code>sudo apt update
+sudo apt upgrade -y</code></pre>
+
+      <p>Then I install Tailscale. SSH-ing into the Pi requires being on the same network, and sometimes I like working outside of home. I also use Termius on my phone to quickly check if temperature is spiking — though I should really set up an alert for that.</p>
+
+      <h2>Setting Up kubeadm</h2>
+
+      <h3>Installing Required Kernel Modules and Disabling Swap</h3>
+
+      <pre><code>#!/bin/bash
+
+apt-get install linux-modules-extra-raspi
+
+sudo swapoff -a
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+cat &lt;&lt;EOF | tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+modprobe overlay
+modprobe br_netfilter
+
+cat &lt;&lt;EOF | tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+sysctl --system</code></pre>
+
+      <h3>Installing Containerd</h3>
+
+      <pre><code>apt-get update -y
+apt-get install ca-certificates curl gnupg lsb-release -y
+
+mkdir -p /etc/apt/keyrings
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" \
+  | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt-get update -y
+apt-get install containerd.io -y
+
+containerd config default > /etc/containerd/config.toml
+
+sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' \
+  /etc/containerd/config.toml
+
+systemctl restart containerd
+systemctl enable containerd</code></pre>
+
+      <h3>Installing Kubernetes Components</h3>
+
+      <pre><code>apt-get update
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key \
+  | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] \
+  https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' \
+  | tee /etc/apt/sources.list.d/kubernetes.list
+
+apt-get update
+
+apt-get install -y kubelet kubeadm kubectl
+
+apt-mark hold kubelet kubeadm kubectl</code></pre>
+
+      <h3>Initializing the Cluster</h3>
+
+      <p>I chose the Pod CIDR <code>10.90.0.0/16</code>, which is also what Flannel uses.</p>
+
+      <pre><code>kubeadm init --pod-network-cidr=10.90.0.0/16</code></pre>
+
+      <p>If everything goes well you'll see:</p>
+
+      <pre><code>Your Kubernetes control-plane has initialized successfully!</code></pre>
+
+      <p>The output also gives you a <code>kubeadm join</code> command for your worker nodes — save that.</p>
+
+      <h3>Configuring kubectl</h3>
+
+      <pre><code>mkdir -p $HOME/.kube
+
+sudo cp -i /etc/kubernetes/admin.conf \
+  $HOME/.kube/config
+
+sudo chown $(id -u):$(id -g) \
+  $HOME/.kube/config</code></pre>
+
+      <h3>Installing Flannel CNI</h3>
+
+      <pre><code>kubectl apply -f \
+  https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml</code></pre>
+
+      <h3>Joining Worker Nodes</h3>
+
+      <p>SSH into each worker node and run the join command from the init output:</p>
+
+      <pre><code>kubeadm join &lt;control-plane-host&gt;:&lt;control-plane-port&gt; \
+  --token &lt;token&gt; \
+  --discovery-token-ca-cert-hash sha256:&lt;hash&gt;</code></pre>
+
+      <h2>Adding a Raspberry Pi Worker Node — Hurdles &amp; Fixes</h2>
+
+      <p>I later added a second Raspberry Pi (Debian trixie, ARM64) as a worker node to the existing kubeadm v1.31 cluster with Cilium as the CNI. Here are the four hurdles I ran into.</p>
+
+      <h3>1. cgroup Not Enabled in containerd</h3>
+
+      <p><strong>Problem:</strong> kubelet failed to start because containerd wasn't using the systemd cgroup driver.</p>
+
+      <p><strong>Symptom:</strong></p>
+      <pre><code>failed to run Kubelet: running with swap on is not supported</code></pre>
+
+      <p><strong>Fix:</strong></p>
+      <pre><code>containerd config default | sudo tee /etc/containerd/config.toml
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+sudo systemctl restart containerd</code></pre>
+
+      <h3>2. zram Swap Causing kubelet Crash Loop</h3>
+
+      <p><strong>Problem:</strong> Raspberry Pi OS automatically enables zram swap on boot. kubelet refuses to start if swap is on.</p>
+
+      <p><strong>Symptom:</strong></p>
+      <pre><code>failed to run Kubelet: running with swap on is not supported</code></pre>
+
+      <p><strong>Fix:</strong> Disable swap and mask the zram service so it doesn't come back after reboot:</p>
+      <pre><code>sudo swapoff -a
+sudo systemctl mask systemd-zram-setup@zram0
+
+# Verify swap is off
+cat /proc/swaps
+# Should be empty</code></pre>
+
+      <h3>3. Debian trixie sqv GPG Signature Rejection</h3>
+
+      <p><strong>Problem:</strong> Debian trixie ships with <code>sqv</code> as the default OpenPGP verifier. Since February 2026, sqv rejects PGP v3 signatures — which is what the Kubernetes apt repo uses.</p>
+
+      <p><strong>Symptom:</strong></p>
+      <pre><code>Sub-process /usr/bin/sqv returned an error code (1)
+Signature Packet v3 is not considered secure since 2026-02-01T00:00:00Z
+Error: The repository 'https://pkgs.k8s.io/core:/stable:/v1.31/deb InRelease' is not signed.</code></pre>
+
+      <p><strong>Fix:</strong> Rename sqv so apt falls back to gpgv:</p>
+      <pre><code>sudo mv /usr/bin/sqv /usr/bin/sqv.bak
+sudo apt update
+sudo apt install -y kubelet kubeadm</code></pre>
+
+      <h3>4. Missing cluster-info ConfigMap on Control Plane</h3>
+
+      <p><strong>Problem:</strong> The kubeadm join command kept timing out with <code>context deadline exceeded</code> even though the API server was reachable. The <code>cluster-info</code> ConfigMap in the <code>kube-public</code> namespace was missing, so the worker node couldn't validate the API server identity.</p>
+
+      <p><strong>Symptom:</strong></p>
+      <pre><code>couldn't validate the identity of the API Server: failed to request
+the cluster-info ConfigMap: client rate limiter Wait returned an error:
+context deadline exceeded</code></pre>
+
+      <p><strong>Fix:</strong> Re-run the bootstrap-token phase on the control plane:</p>
+      <pre><code>sudo kubeadm init phase upload-config kubeadm
+sudo kubeadm init phase bootstrap-token
+
+# Verify
+kubectl get configmap cluster-info -n kube-public</code></pre>
+
+      <h2>Final Result</h2>
+
+      <p>After fixing all four issues, the node joined successfully:</p>
+
+      <pre><code>This node has joined the cluster:
+* Certificate signing request was sent to apiserver and a response was received.
+* The Kubelet was informed of the new secure connection details.
+
+kubectl get nodes
+# NAME          STATUS   ROLES    AGE   VERSION
+# master        Ready    &lt;none&gt;   15h   v1.31.14
+# workernode1   Ready    &lt;none&gt;   8h    v1.31.14</code></pre>
+
+      <h2>Summary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Issue</th>
+            <th>Root Cause</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>containerd cgroup driver</td>
+            <td>Default config has <code>SystemdCgroup = false</code></td>
+            <td>sed to set <code>SystemdCgroup = true</code></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>kubelet crash loop</td>
+            <td>zram swap auto-enabled on Raspberry Pi OS</td>
+            <td>swapoff + mask zram service</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>k8s apt repo not signed</td>
+            <td>Debian trixie sqv rejects PGP v3</td>
+            <td>Rename sqv binary</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>join timeout</td>
+            <td>Missing cluster-info ConfigMap</td>
+            <td>Re-run kubeadm init phase bootstrap-token</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 sre.blog &mdash; Built with simplicity in mind. &middot; <a href="https://www.linkedin.com/in/iqbal-h-197921105/" target="_blank" rel="noopener">LinkedIn</a> &middot; <a href="https://github.com/iqbalhakims" target="_blank" rel="noopener">GitHub</a></p>
+    <a href="https://buymeacoffee.com/iqbalhakim" target="_blank" rel="noopener" class="bmc-btn">&#9749; Buy me a coffee</a>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
