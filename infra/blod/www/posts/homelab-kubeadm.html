@@ -319,6 +319,34 @@ kubectl get nodes
         </tbody>
       </table>
 
+      <h2>What's Next — Exposing Services on Bare Metal</h2>
+
+      <p>On bare metal, when you create a Service of type <code>LoadBalancer</code>, it will stay stuck in <code>&lt;pending&gt;</code> forever. There's no cloud provider to hand out an IP. That's where MetalLB comes in.</p>
+
+      <p>I'll deploy MetalLB via Helm to give the cluster the ability to assign real IP addresses from my local network — so I can then link those IPs to actual domain names for my apps.</p>
+
+      <p>My domain is <code>iqbalhakim.ink</code>. The main web app lives at the root domain. For tools like ArgoCD and Litmus, I'll add subdomains:</p>
+
+      <ul>
+        <li><code>iqbalhakim.ink</code> — main web app</li>
+        <li><code>argo.iqbalhakim.ink</code> — ArgoCD</li>
+        <li><code>litmus.iqbalhakim.ink</code> — Litmus chaos engineering</li>
+      </ul>
+
+      <h3>App Deployment Order</h3>
+
+      <p>The sequence matters here — each layer depends on the one before it:</p>
+
+      <ol>
+        <li><strong>ArgoCD</strong> — the GitOps pipeline, deploys everything else declaratively</li>
+        <li><strong>MetalLB</strong> — enables <code>LoadBalancer</code> type services on bare metal</li>
+        <li><strong>Istio</strong> — handles traffic routing and exposes services via the IP MetalLB assigns</li>
+        <li><strong>External DNS</strong> — watches for new services/ingresses and automatically creates DNS A records</li>
+        <li><strong>Grafana + Prometheus</strong> — cluster monitoring so I can actually see what's happening</li>
+      </ol>
+
+      <p>I'll cover each of these in a follow-up post once they're all wired up.</p>
+
     </div>
   </main>
 
