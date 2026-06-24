@@ -327,6 +327,10 @@ kubectl get nodes
 
       <h2>What's Next — Exposing Services on Bare Metal</h2>
 
+      <figure>
+        <img src="../images/metallb.png" alt="MetalLB setup">
+      </figure>
+
       <p>On bare metal, when you create a Service of type <code>LoadBalancer</code>, it will stay stuck in <code>&lt;pending&gt;</code> forever. There's no cloud provider to hand out an IP. That's where MetalLB comes in.</p>
 
       <p>I'll deploy MetalLB via Helm to give the cluster the ability to assign real IP addresses from my local network — so I can then link those IPs to actual domain names for my apps.</p>
