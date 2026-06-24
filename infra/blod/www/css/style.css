@@ -338,6 +338,29 @@ img {
   padding: 0;
 }
 
+.article-content img {
+  display: block;
+  max-width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 1.5rem auto;
+}
+
+.article-content figure {
+  margin: 1.5rem 0;
+}
+
+.article-content figure img {
+  margin-bottom: 0.5rem;
+}
+
+.article-content figcaption {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
 .article-content blockquote {
   border-left: 3px solid var(--accent);
   padding: 0.5rem 1rem;
