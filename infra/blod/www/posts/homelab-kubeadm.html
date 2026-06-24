@@ -281,14 +281,9 @@ kubectl get configmap cluster-info -n kube-public</code></pre>
 
       <p>After fixing all four issues, the node joined successfully:</p>
 
-      <pre><code>This node has joined the cluster:
-* Certificate signing request was sent to apiserver and a response was received.
-* The Kubelet was informed of the new secure connection details.
-
-kubectl get nodes
-# NAME          STATUS   ROLES    AGE   VERSION
-# master        Ready    &lt;none&gt;   15h   v1.31.14
-# workernode1   Ready    &lt;none&gt;   8h    v1.31.14</code></pre>
+      <figure>
+        <img src="../images/clusterready.jpeg" alt="Cluster ready">
+      </figure>
 
       <h2>Summary</h2>
 
@@ -330,10 +325,6 @@ kubectl get nodes
       </table>
 
       <h2>What's Next — Exposing Services on Bare Metal</h2>
-
-      <figure>
-        <img src="../images/clusterready.jpeg" alt="Cluster ready">
-      </figure>
 
 
       <figure>
